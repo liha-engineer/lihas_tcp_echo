@@ -1,0 +1,15 @@
+{
+  "name": "lihas_tcp_echo",
+  "version": "1.0.0",
+  "main": "src/server.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "dev" : "nodemon server.js",
+    "client" : "nodemon client.js"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "prettier": "^3.3.3"
+  }
+}
