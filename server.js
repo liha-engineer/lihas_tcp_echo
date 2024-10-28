@@ -1,6 +1,7 @@
 import net from "net";
 import { readHeader, writeHeader } from "./utils.js";
 import { HANDLER_ID, MAX_MESSAGE_LENGTH, TOTAL_LENGTH_SIZE } from "./constants.js";
+import handlers from "./handlers/index.js";
 
 const PORT = 5252;
 const server = net.createServer((socket) => {
@@ -25,6 +26,15 @@ const server = net.createServer((socket) => {
         return;
     }
 
+    const handler = handlers[handlerId];
+
+    if(!handler) {
+        console.error(`Error: Handler not found: ${handlerId}`);
+        socket.write(`Error: Invalid handler Id! : ${handlerId}`);
+        socket.end();
+        return;
+    }
+
     // 우리가 원하는 데이터는 헤더를 제외한 메시지 부분이므로 헤더만큼을 썰어줘야 한다
     const headerSize = TOTAL_LENGTH_SIZE + HANDLER_ID; // 6일것
     const message = buffer.subarray(headerSize); // 0부터 headerSize만큼까지 잘라줘 (0 안써도 ok)
@@ -32,7 +42,7 @@ const server = net.createServer((socket) => {
     console.log(`Message from client: ${message}`)
 
     // 클라이언트에게 돌려줄 메시지
-    const responseMessage = "Hi Client! I got your packet";
+    const responseMessage = handler(message);
     // 메시지 담을 버퍼 생성
     const responseBuffer = Buffer.from(responseMessage)
     // 버퍼에 붙일 헤더 생성 - 메시지 길이와 handlerId를 인자로 받는데, handlerId는 클라에서 받은 거 그대로 돌려준다
